@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>順次スクリプト読み込みデモ</title>
+</head>
+<body>
+    <h1>順次スクリプト読み込みデモ2</h1>
+    <div id="output"></div>
+
+    <script>
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        async function loadScriptsSequentially() {
+            const output = document.getElementById('output');
+            try {
+                output.innerHTML += '<p>ファイルAを読み込み中...</p>';
+                await loadScript('fileA.js');
+                output.innerHTML += '<p>ファイルAの読み込みが完了しました。処理を待機中...</p>';
+                
+                // ファイルAの処理完了を待つ
+                await window.fileAComplete;
+                
+                output.innerHTML += '<p>ファイルBを読み込み中...</p>';
+                await loadScript('fileB.js');
+                output.innerHTML += '<p>ファイルBの読み込みと実行が完了しました</p>';
+                
+                output.innerHTML += '<p>全てのスクリプトの読み込みと実行が完了しました</p>';
+            } catch (error) {
+                output.innerHTML += `<p>エラー: ${error.message}</p>`;
+            }
+        }
+
+        loadScriptsSequentially();
+    </script>
+</body>
+</html>
